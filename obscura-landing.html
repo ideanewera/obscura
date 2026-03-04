@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OBSCURA — LinkedIn Ghost Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Didact+Gothic&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --black: #080808; --deep: #0f0f0f; --carbon: #161616; --smoke: #222222;
+    --gold: #c9a96e; --gold-dim: rgba(201,169,110,0.4); --gold-ghost: rgba(201,169,110,0.07);
+    --ivory: #f0ebe0; --ivory-dim: rgba(240,235,224,0.55); --ivory-ghost: rgba(240,235,224,0.12);
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--black); color: var(--ivory); font-family: 'Didact Gothic', sans-serif; font-weight: 400; line-height: 1.7; overflow-x: hidden; cursor: none; }
+  .cursor { position: fixed; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; pointer-events: none; z-index: 99999; transition: transform 0.15s ease; mix-blend-mode: difference; }
+  .cursor-ring { position: fixed; width: 32px; height: 32px; border: 1px solid rgba(201,169,110,0.4); border-radius: 50%; pointer-events: none; z-index: 99998; transition: width 0.3s, height 0.3s; }
+  body::after { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E"); pointer-events: none; z-index: 9998; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 28px 60px; background: linear-gradient(to bottom, rgba(8,8,8,0.95), transparent); }
+  .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300; letter-spacing: 0.35em; color: var(--gold); text-decoration: none; }
+  .nav-cta { font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ivory-dim); text-decoration: none; border-bottom: 1px solid rgba(240,235,224,0.2); padding-bottom: 2px; transition: color 0.3s, border-color 0.3s; }
+  .nav-cta:hover { color: var(--gold); border-color: var(--gold-dim); }
+  .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 120px 40px 80px; position: relative; overflow: hidden; }
+  .hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 50% 60%, rgba(201,169,110,0.05) 0%, transparent 70%), radial-gradient(ellipse 40% 30% at 20% 80%, rgba(201,169,110,0.03) 0%, transparent 60%); }
+  .hero-lines { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .hero-lines span { position: absolute; display: block; width: 1px; background: linear-gradient(to bottom, transparent, rgba(201,169,110,0.15), transparent); animation: lineDrop 8s ease-in-out infinite; opacity: 0; }
+  .hero-lines span:nth-child(1) { left: 15%; height: 40%; animation-delay: 0s; }
+  .hero-lines span:nth-child(2) { left: 35%; height: 60%; animation-delay: 2s; }
+  .hero-lines span:nth-child(3) { left: 65%; height: 45%; animation-delay: 4s; }
+  .hero-lines span:nth-child(4) { left: 82%; height: 55%; animation-delay: 1s; }
+  @keyframes lineDrop { 0% { top: -60%; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { top: 120%; opacity: 0; } }
+  .hero-eyebrow { font-size: 9px; letter-spacing: 0.5em; text-transform: uppercase; color: var(--gold); margin-bottom: 40px; opacity: 0; animation: riseIn 1.2s 0.2s ease forwards; position: relative; display: flex; align-items: center; gap: 20px; }
+  .hero-eyebrow::before, .hero-eyebrow::after { content: ''; width: 40px; height: 1px; background: var(--gold-dim); }
+  .hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(64px, 10vw, 120px); font-weight: 300; letter-spacing: 0.2em; line-height: 0.9; color: var(--ivory); opacity: 0; animation: riseIn 1.4s 0.4s ease forwards; position: relative; }
+  .hero-title em { display: block; font-style: italic; color: var(--gold); font-size: 0.85em; }
+  .hero-divider { width: 1px; height: 80px; background: linear-gradient(to bottom, var(--gold-dim), transparent); margin: 50px auto; opacity: 0; animation: riseIn 1s 0.8s ease forwards; }
+  .hero-sub { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: clamp(18px, 2.5vw, 26px); color: var(--ivory-dim); max-width: 560px; line-height: 1.6; opacity: 0; animation: riseIn 1s 1s ease forwards; }
+  .hero-cta { margin-top: 60px; opacity: 0; animation: riseIn 1s 1.3s ease forwards; }
+  @keyframes riseIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  .btn-primary { display: inline-block; font-size: 9px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--black); background: var(--gold); padding: 18px 48px; text-decoration: none; transition: opacity 0.3s; position: relative; }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-ghost { display: inline-block; font-size: 9px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--ivory-dim); border: 1px solid rgba(240,235,224,0.2); padding: 17px 40px; text-decoration: none; transition: color 0.3s, border-color 0.3s; margin-left: 20px; }
+  .btn-ghost:hover { color: var(--gold); border-color: var(--gold-dim); }
+  .scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0; animation: riseIn 1s 2s ease forwards; }
+  .scroll-hint span { font-size: 8px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(201,169,110,0.4); }
+  .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--gold-dim), transparent); animation: scrollPulse 2s ease-in-out infinite; }
+  @keyframes scrollPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+  section { position: relative; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 60px; }
+  .container-narrow { max-width: 760px; margin: 0 auto; padding: 0 60px; }
+  .section-tag { font-size: 8px; letter-spacing: 0.5em; text-transform: uppercase; color: var(--gold); display: flex; align-items: center; gap: 16px; margin-bottom: 48px; }
+  .section-tag::after { content: ''; flex: 1; max-width: 80px; height: 1px; background: var(--gold-dim); }
+  .problem { padding: 140px 0; border-top: 1px solid rgba(201,169,110,0.08); }
+  .problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+  .problem-headline { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 4vw, 54px); font-weight: 300; line-height: 1.2; color: var(--ivory); }
+  .problem-headline em { font-style: italic; color: var(--gold); }
+  .problem-list { list-style: none; display: flex; flex-direction: column; gap: 24px; }
+  .problem-list li { display: flex; gap: 20px; align-items: flex-start; font-size: 14px; color: var(--ivory-dim); line-height: 1.6; }
+  .problem-list li::before { content: '—'; color: var(--gold); flex-shrink: 0; margin-top: 2px; }
+  .how { padding: 140px 0; background: var(--deep); border-top: 1px solid rgba(201,169,110,0.08); border-bottom: 1px solid rgba(201,169,110,0.08); }
+  .how-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(40px, 5vw, 64px); font-weight: 300; text-align: center; margin-bottom: 80px; line-height: 1.1; }
+  .how-title em { font-style: italic; color: var(--gold); }
+  .steps-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+  .step-card { background: var(--carbon); padding: 40px 32px; position: relative; overflow: hidden; transition: background 0.3s; border-top: 2px solid transparent; }
+  .step-card:hover { background: var(--smoke); border-top-color: var(--gold); }
+  .step-num { font-family: 'Cormorant Garamond', serif; font-size: 56px; font-weight: 300; color: rgba(201,169,110,0.12); line-height: 1; margin-bottom: 20px; }
+  .step-icon { font-size: 22px; margin-bottom: 16px; }
+  .step-label { font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+  .step-desc { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 16px; color: var(--ivory-dim); line-height: 1.6; }
+  .offer { padding: 140px 0; }
+  .offer-header { text-align: center; margin-bottom: 80px; }
+  .offer-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(40px, 5vw, 60px); font-weight: 300; line-height: 1.1; }
+  .offer-title em { font-style: italic; color: var(--gold); }
+  .offer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  .offer-card { background: var(--carbon); padding: 48px 36px; border: 1px solid rgba(201,169,110,0.08); position: relative; transition: border-color 0.3s; }
+  .offer-card:hover { border-color: rgba(201,169,110,0.2); }
+  .offer-card.featured { border-color: rgba(201,169,110,0.3); background: rgba(201,169,110,0.04); }
+  .offer-card.featured::before { content: 'più richiesto'; position: absolute; top: -1px; right: 24px; font-size: 8px; letter-spacing: 0.3em; text-transform: uppercase; background: var(--gold); color: var(--black); padding: 4px 12px; }
+  .offer-name { font-size: 9px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--gold); margin-bottom: 24px; }
+  .offer-price { font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 300; color: var(--ivory); line-height: 1; margin-bottom: 8px; }
+  .offer-price sup { font-size: 22px; vertical-align: super; color: var(--gold); }
+  .offer-period { font-size: 11px; color: var(--ivory-dim); letter-spacing: 0.1em; margin-bottom: 36px; }
+  .offer-features { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+  .offer-features li { font-size: 13px; color: var(--ivory-dim); display: flex; gap: 12px; align-items: flex-start; }
+  .offer-features li::before { content: '·'; color: var(--gold); font-size: 18px; line-height: 1; flex-shrink: 0; }
+  .manifesto { padding: 140px 0; background: var(--deep); border-top: 1px solid rgba(201,169,110,0.08); text-align: center; }
+  .manifesto-quote { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 4vw, 48px); font-weight: 300; font-style: italic; line-height: 1.4; color: var(--ivory); max-width: 800px; margin: 0 auto 40px; position: relative; }
+  .manifesto-quote::before { content: '"'; font-size: 160px; color: rgba(201,169,110,0.06); position: absolute; top: -40px; left: -20px; line-height: 1; font-style: normal; }
+  .manifesto-attr { font-size: 9px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--gold-dim); }
+  .contact { padding: 140px 0; border-top: 1px solid rgba(201,169,110,0.08); }
+  .contact-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: center; }
+  .contact-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(40px, 5vw, 64px); font-weight: 300; line-height: 1.1; margin-bottom: 24px; }
+  .contact-title em { font-style: italic; color: var(--gold); }
+  .contact-sub { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 18px; color: var(--ivory-dim); line-height: 1.6; margin-bottom: 48px; }
+  .contact-email { font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); text-decoration: none; border-bottom: 1px solid var(--gold-dim); padding-bottom: 4px; transition: opacity 0.3s; }
+  .contact-email:hover { opacity: 0.7; }
+  .contact-right { background: var(--carbon); border: 1px solid rgba(201,169,110,0.15); padding: 48px; position: relative; }
+  .contact-right::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(to right, transparent, var(--gold), transparent); }
+  .contact-note { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 17px; color: var(--ivory-dim); line-height: 1.7; margin-bottom: 32px; }
+  .contact-detail { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(201,169,110,0.5); line-height: 2.2; }
+  footer { padding: 48px 60px; border-top: 1px solid rgba(201,169,110,0.08); display: flex; justify-content: space-between; align-items: center; }
+  .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 18px; letter-spacing: 0.35em; color: rgba(201,169,110,0.35); }
+  .footer-note { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(240,235,224,0.2); }
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.9s ease, transform 0.9s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  @media (max-width: 768px) {
+    nav { padding: 24px 28px; } .container, .container-narrow { padding: 0 28px; }
+    .problem-grid, .contact-inner { grid-template-columns: 1fr; gap: 48px; }
+    .steps-row { grid-template-columns: 1fr 1fr; } .offer-grid { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 16px; text-align: center; }
+    body { cursor: auto; } .cursor, .cursor-ring { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<nav>
+  <a href="#" class="nav-logo">OBSCURA</a>
+  <a href="#contact" class="nav-cta">Scrivici</a>
+</nav>
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-lines"><span></span><span></span><span></span><span></span></div>
+  <div class="hero-eyebrow">LinkedIn Ghost Studio</div>
+  <h1 class="hero-title">La tua voce.<br><em>La nostra penna.</em></h1>
+  <div class="hero-divider"></div>
+  <p class="hero-sub">Trasformiamo l'esperienza dei manager corporate e finance in autorevolezza pubblica su LinkedIn. Invisibilmente.</p>
+  <div class="hero-cta">
+    <a href="#contact" class="btn-primary">Inizia ora</a>
+    <a href="#how" class="btn-ghost">Come funziona</a>
+  </div>
+  <div class="scroll-hint"><span>Scroll</span><div class="scroll-line"></div></div>
+</section>
+<section class="problem">
+  <div class="container">
+    <div class="problem-grid reveal">
+      <div>
+        <div class="section-tag">Il problema</div>
+        <h2 class="problem-headline">Sai cosa vale<br>la tua esperienza.<br><em>LinkedIn no.</em></h2>
+      </div>
+      <ul class="problem-list">
+        <li>Hai anni di insight nel tuo settore che non hai mai condiviso pubblicamente.</li>
+        <li>Sai che la visibilità su LinkedIn conta per la tua carriera — ma scrivere richiede tempo che non hai.</li>
+        <li>Ogni volta che apri l'editor di LinkedIn, la pagina bianca vince.</li>
+        <li>I tuoi colleghi meno esperti sembrano più presenti. Tu sai di più, ma sei meno visibile.</li>
+        <li>Vorresti apparire autorevole — non come un'azienda, ma come un leader con una voce.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section class="how" id="how">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-tag" style="justify-content:center; margin-bottom:16px">Il processo</div>
+      <h2 class="how-title">Quattro passi.<br><em>Zero sforzo da parte tua.</em></h2>
+    </div>
+    <div class="steps-row reveal">
+      <div class="step-card"><div class="step-num">01</div><div class="step-icon">🎙</div><div class="step-label">Vocale</div><p class="step-desc">Mandi un vocale WhatsApp di 10 minuti. Parli liberamente, senza struttura.</p></div>
+      <div class="step-card"><div class="step-num">02</div><div class="step-icon">🔍</div><div class="step-label">Analisi</div><p class="step-desc">Estraiamo le idee migliori, il tuo tono autentico, la tua prospettiva unica.</p></div>
+      <div class="step-card"><div class="step-num">03</div><div class="step-icon">✍️</div><div class="step-label">Scrittura</div><p class="step-desc">Scriviamo i post con la tua voce. Non sembrano scritti da un'agenzia — sembrano scritti da te.</p></div>
+      <div class="step-card"><div class="step-num">04</div><div class="step-icon">📤</div><div class="step-label">Consegna</div><p class="step-desc">Ricevi i post pronti. Approvi, pubblichi. Fine. Ogni mese.</p></div>
+    </div>
+  </div>
+</section>
+<section class="offer" id="offer">
+  <div class="container">
+    <div class="offer-header reveal">
+      <div class="section-tag" style="justify-content:center; margin-bottom:16px">I pacchetti</div>
+      <h2 class="offer-title">Scegli la tua<br><em>presenza.</em></h2>
+    </div>
+    <div class="offer-grid reveal">
+      <div class="offer-card">
+        <div class="offer-name">Obscura Starter</div>
+        <div class="offer-price"><sup>€</sup>120</div>
+        <div class="offer-period">al mese</div>
+        <ul class="offer-features">
+          <li>4 post LinkedIn al mese</li><li>1 sessione vocale mensile</li><li>Tono calibrato sul tuo profilo</li><li>Consegna entro 5 giorni</li>
+        </ul>
+      </div>
+      <div class="offer-card featured">
+        <div class="offer-name">Obscura Core</div>
+        <div class="offer-price"><sup>€</sup>220</div>
+        <div class="offer-period">al mese</div>
+        <ul class="offer-features">
+          <li>8 post LinkedIn al mese</li><li>Revisioni incluse</li><li>Analisi del profilo iniziale</li><li>Strategia tematica mensile</li><li>Consegna entro 3 giorni</li>
+        </ul>
+      </div>
+      <div class="offer-card">
+        <div class="offer-name">Obscura Presence</div>
+        <div class="offer-price"><sup>€</sup>350</div>
+        <div class="offer-period">al mese</div>
+        <ul class="offer-features">
+          <li>12 post LinkedIn al mese</li><li>Gestione commenti strategici</li><li>Ottimizzazione profilo completa</li><li>Report mensile engagement</li><li>Priorità assoluta</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="manifesto">
+  <div class="container-narrow reveal">
+    <div class="section-tag" style="justify-content:center; margin-bottom:48px">La nostra filosofia</div>
+    <p class="manifesto-quote">Le parole giuste, dette al momento giusto, da qualcuno che sa ascoltare prima di scrivere — questa è la differenza tra presenza e rumore.</p>
+    <div class="manifesto-attr">— Obscura Studio</div>
+  </div>
+</section>
+<section class="contact" id="contact">
+  <div class="container">
+    <div class="contact-inner reveal">
+      <div>
+        <div class="section-tag">Inizia ora</div>
+        <h2 class="contact-title">Pronto a<br><em>farti sentire?</em></h2>
+        <p class="contact-sub">Il primo post è un regalo. Nessun impegno, nessun contratto. Solo parole che finalmente ti rappresentano.</p>
+        <a href="mailto:studio@obscura.com" class="contact-email">studio@obscura.com</a>
+      </div>
+      <div class="contact-right">
+        <p class="contact-note">"Scrivi a noi con il tuo nome e il tuo settore. Analizziamo il tuo profilo LinkedIn e ti inviamo un post omaggio entro 48 ore. Se ti rispecchia, parliamo. Se no, tienilo comunque."</p>
+        <div class="contact-detail">Risposta garantita · 48 ore<br>Primo post · Gratuito<br>Nessun contratto annuale<br>Riservatezza assoluta</div>
+      </div>
+    </div>
+  </div>
+</section>
+<footer>
+  <div class="footer-logo">OBSCURA</div>
+  <div class="footer-note">LinkedIn Ghost Studio — Ogni parola, nell'ombra.</div>
+</footer>
+<script>
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx - 4 + 'px'; cursor.style.top = my - 4 + 'px';
+  });
+  function animateRing() {
+    rx += (mx - rx - 16) * 0.12; ry += (my - ry - 16) * 0.12;
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => { cursor.style.transform = 'scale(3)'; ring.style.width = '50px'; ring.style.height = '50px'; });
+    el.addEventListener('mouseleave', () => { cursor.style.transform = 'scale(1)'; ring.style.width = '32px'; ring.style.height = '32px'; });
+  });
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.15 });
+  reveals.forEach(r => observer.observe(r));
+</script>
+</body>
+</html>
